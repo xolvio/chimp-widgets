@@ -76,27 +76,3 @@ describe 'Widget', ->
         @timeout.timeoutsImplicitWait.callsArgWith(1, error)
         @api[mapping.api].withArgs(@element.ELEMENT).returns @timeout
         @widget[mapping.method]().should.be.rejectedWith error
-
-    it 'allows nested selectors', ->
-      parentSelector = '.parent'
-      parentElement = ELEMENT: {}, isParent: true
-      nestedSelector = '.nested'
-      nestedElement = ELEMENT: {}, isNested: true
-      for mapping in mappings
-
-        # Setup stub webdriver API for nested element selectors
-        @api.element
-          .withArgs("#{parentSelector} #{nestedSelector}", sinon.match.func)
-          .callsArgWith(1, null, value: nestedElement)
-
-        # Setup stub webdriver API to respond to mapped methods
-        @api[mapping.api].withArgs(nestedElement.ELEMENT).returns @timeout
-
-        # Invoke the API method with a nested selector
-        widget = new Widget parentSelector
-        widget[mapping.method](nestedSelector).should.be.fulfilled
-
-    it 'throws error when trying to nest element selector', ->
-      for mapping in mappings
-        @api[mapping.api].withArgs(@element.ELEMENT).returns @timeout
-        (-> @widget[mapping.method]('.nested')).should.throw Error

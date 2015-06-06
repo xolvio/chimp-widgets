@@ -5,7 +5,6 @@ class Widget
 
   @ERRORS:
     invalidSelector: (id) -> new Error "Invalid selector given: #{id}"
-    cannotDoNesting: -> new Error "Can't do nesting with element selectors."
 
   @TIMEOUT: 5000
 
@@ -33,10 +32,18 @@ class Widget
       else
         @Promise.reject()
 
-  _promisifyWebdriverApi: (method) ->
+  find: (nestedSelector) ->
+    if @_isElementSelector
+      # We can't find nested elements if we dont have a parent selector
+      new Widget nestedSelector
+    else
+      new Widget "#{@selector} #{nestedSelector}"
+
+  _promisifyWebdriverApi: (method, callArgs) ->
     @getElement().then (element) =>
       new Promise (fulfill, reject) =>
-        action = @driver[method](element.ELEMENT)
+        callArgs.unshift element.ELEMENT
+        action = @driver[method].apply @driver, callArgs
         action.timeoutsImplicitWait Widget.TIMEOUT, (error) =>
           # Handle errors and hand on widget instance on success
           if error? then reject(error) else fulfill this
@@ -47,20 +54,13 @@ class Widget
     { method: 'click', webdriverMethod: 'elementIdClick' }
     { method: 'isVisible', webdriverMethod: 'elementIdDisplayed' }
     { method: 'getText', webdriverMethod: 'elementIdText' }
+    { method: 'setValue', webdriverMethod: 'elementIdValue' }
   ]
 
   # The generated methods are running in the context of the widget!
-  generateApiMethod = (api) -> return (nestedSelector) ->
-    if nestedSelector?
-      if @_isStringSelector
-        # Create widget with nested selectors and call api method
-        new Widget("#{@selector} #{nestedSelector}")[api.method]()
-      else
-        # We can't nest if we have an element selector
-        throw Widget.ERRORS.cannotDoNesting()
-    else
-      # No nesting, just invoke webdriver API on this widget
-      @_promisifyWebdriverApi api.webdriverMethod
+  generateApiMethod = (api) -> return ->
+    callArgs = Array.prototype.slice.call arguments
+    @_promisifyWebdriverApi api.webdriverMethod, callArgs
 
   for api in WIDGET_API
     Widget.prototype[api.method] = generateApiMethod(api)
