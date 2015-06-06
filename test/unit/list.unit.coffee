@@ -1,5 +1,8 @@
 require '../config'
 widgets = require '../../main'
+Widget = widgets.Widget
+List = widgets.List
+Promise = require 'bluebird'
 
 describe 'widgets.List', ->
 
@@ -8,37 +11,27 @@ describe 'widgets.List', ->
     @secondElement = ELEMENT: {}
     @thirdElement = ELEMENT: {}
     @elements = value: [@firstElement, @secondElement, @thirdElement]
+    @listSelector = '.test'
 
-    @api = widgets.driver.api =
-      elements: sinon.stub()
-      elementIdText: sinon.stub()
+    # Simulate webdriver API
+    @api = elements: sinon.stub()
+    @api.elements.withArgs(@listSelector).callsArgWith(1, null, @elements)
 
-    @selector = '.test'
-
-    @api.elements
-      .withArgs(@selector)
-      .callsArgWith(1, null, @elements)
-
-    @list = new widgets.List @selector
+    # Provide fake Widgets for testing
+    @widgetFactory = sinon.stub()
+    @widgetFactory.returns hasText: -> Promise.reject()
 
   describe '#findByText', ->
 
     it 'resolves with the first widget that matches', ->
       text = value: 'test'
-      @api.elementIdText.callsArgWith(1, null, text)
-      @list.findByText(text.value).should.eventually.eql(
-        new widgets.Widget @firstElement, @api
-      )
+      testWidget = hasText: -> Promise.resolve(testWidget)
+      @widgetFactory.withArgs(@firstElement).returns testWidget
 
-    it 'searches the whole list of widgets', ->
-      text = value: 'test'
-      @api.elementIdText
-        .withArgs(@thirdElement.ELEMENT, sinon.match.func)
-        .callsArgWith(1, null, text)
-      @list.findByText(text.value).should.eventually.eql(
-        new widgets.Widget @thirdElement, @api
-      )
+      list = new List @listSelector, @api, @widgetFactory
+      list.findByText(text.value).then (widget) =>
+        widget.should.equal testWidget
 
     it 'rejects if no widget matches', ->
-      @api.elementIdText.callsArgWith(1, null, 'other')
-      @list.findByText('test').should.be.rejected
+      list = new List @listSelector, @api, @widgetFactory
+      list.findByText('test').should.be.rejected
