@@ -25,13 +25,13 @@
     "url": "https://github.com/xolvio/chimp-widgets/issues"
   },
   "scripts": {
-    "prepublish": "coffee -o lib -c source/*.coffee"
+    "prepublish": "./build.sh"
   },
   "main": "main.js",
   "dependencies": {
     "bluebird": "^2.9.24"
   },
   "devDependencies": {
-    "coffee-script": "^1.9.2",
+    "coffee-script": "^1.9.2"
   }
 }

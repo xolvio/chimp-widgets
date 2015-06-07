@@ -1,2 +1,2 @@
 #!/bin/sh
-coffee -o lib -c source/*.coffee
+node_modules/coffee-script/bin/coffee -o lib -c source/*.coffee
