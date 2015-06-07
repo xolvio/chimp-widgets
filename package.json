@@ -32,6 +32,6 @@
     "bluebird": "^2.9.24"
   },
   "devDependencies": {
-    "coffee-script": "^1.9.2",
+    "coffee-script": "^1.9.2"
   }
 }
