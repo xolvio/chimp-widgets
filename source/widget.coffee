@@ -1,18 +1,28 @@
 Promise = require 'bluebird'
 driver  = require './webdriver'
+Base    = require './base'
 
-class Widget
+class Widget extends Base
 
-  @ERRORS:
-    invalidSelector: (id) -> new Error "Invalid selector given: #{id}"
+  # A widget can represent a screen within your app that
+  # can be visited at a specific url
+  @url: null
 
+  # Static method to visit a screen and check that it is visible
+  @visit: (wait=5000) ->
+    Promise.promisify(driver.api.url, driver.api)(@url).then =>
+      screen = new this() # Create an instance of the widget
+      screen.waitForExist(wait).then -> screen # Resolve with screen instance
+
+  # The webdriver api that is used by the widget
   driver: null
+  # All widgets have a selector that maps to one or multiple DOM elements
   selector: null
 
   constructor: (selector, @driver=driver.api, @Promise=Promise) ->
     @selector ?= selector
     if not typeof @selector is 'string'
-      throw Widget.ERRORS.invalidSelector(@selector)
+      throw new Error "Invalid selector given: #{@selector}"
 
   # Returns a new widget that is scoped within the parent selector.
   find: (nestedSelector) -> new Widget "#{@selector} #{nestedSelector}"
