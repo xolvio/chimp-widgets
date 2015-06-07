@@ -18,9 +18,14 @@ class List extends Widget
         else
           fulfill @_wrapAsWidgets(elements.value)
 
-  findByText: (text) ->
-    @widgets.then (widgets) =>
-      @Promise.any widgets.map (widget) => widget.hasText(text).then -> widget
+  findWhere: (filter) -> @widgets.then (widgets) =>
+    @Promise.any widgets.map (widget) => filter(widget).then (result) =>
+      if result then @Promise.resolve(widget) else @Promise.reject()
+
+  findByText: (text) -> 
+    @findWhere (widget) => widget.hasText(text).then -> widget
+
+  map: (mapper) -> @widgets.then (widgets) => widgets.map mapper
 
   _wrapAsWidgets: (elements) =>
     return elements.map (element, index) =>
