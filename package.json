@@ -25,7 +25,7 @@
     "url": "https://github.com/xolvio/chimp-widgets/issues"
   },
   "scripts": {
-    "prepublish": "coffee -o lib -c source/*.coffee"
+    "prepublish": "./build.sh"
   },
   "main": "main.js",
   "dependencies": {
