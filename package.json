@@ -1,7 +1,7 @@
 {
   "name": "chimp-widgets",
-  "version": "0.1.0",
-  "description": "Widget that provides high-level commands for UI testing for use with Xolv.io chimp",
+  "version": "0.2.0",
+  "description": "High-level widgets library for webdriver.io",
   "keywords": [
     "bdd",
     "atdd",
@@ -32,12 +32,6 @@
     "bluebird": "^2.9.24"
   },
   "devDependencies": {
-    "chai": "^2.3.0",
-    "chai-as-promised": "^5.0.0",
     "coffee-script": "^1.9.2",
-    "mocha": "^1.19.0",
-    "should": "^3.3.1",
-    "sinon": "^1.14.1",
-    "sinon-chai": "^2.7.0"
   }
 }
