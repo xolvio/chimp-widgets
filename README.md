@@ -1,5 +1,5 @@
 # chimp-widgets
-Write award winning step definitions while working with [chimp](chimpjs.com) /  [meteor-cucumber](https://github.com/xolvio/meteor-cucumber).
+Write award winning step definitions while working with [chimp](http://chimpjs.com) /  [meteor-cucumber](https://github.com/xolvio/meteor-cucumber).
 
 ## Installation
 `npm install chimp-widgets`
