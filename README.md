@@ -37,7 +37,8 @@ When we look closer we realize that they contain several (implicit) facts about 
 
 The problem is hidden behind the word *implicit*, because those three steps also have in common that they never talk about the real thing (the project page) *explicitely*. To understand what is happening you have to parse the calls to the webdriver API and infer the action targets from DOM selectors.
 
-Let's make the interaction with the DOM more *explicit*:
+### The Page Objects Pattern
+To make the interaction with the DOM more *explicit*, we can apply the [Page Objects Pattern](https://code.google.com/p/selenium/wiki/PageObjects) like this:
 
 ```javascript
 this.When(/^I go to my projects$/, function() {
