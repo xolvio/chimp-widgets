@@ -1,4 +1,3 @@
-Promise = require 'bluebird'
 driver  = require './webdriver'
 Base    = require './base'
 
@@ -8,54 +7,56 @@ class Widget extends Base
   # can be visited at a specific url
   @url: null
 
-  # Static method to visit a screen and check that it is visible
+# Static method to visit a screen and check that it is visible
   @visit: (wait=5000) ->
-    Promise.promisify(driver.api.url, driver.api)(@url).then =>
-      screen = new this() # Create an instance of the widget
-      screen.waitForExist(wait).then -> screen # Resolve with screen instance
+    driver.api.url(@url)
 
-  # The webdriver api that is used by the widget
+    screen = new this() # Create an instance of the widget
+    screen.waitForExist(wait)
+    screen # Resolve with screen instance
+
+# The webdriver api that is used by the widget
   driver: null
-  # All widgets have a selector that maps to one or multiple DOM elements
+# All widgets have a selector that maps to one or multiple DOM elements
   selector: null
 
-  constructor: (selector, @driver=driver.api, @Promise=Promise) ->
+  constructor: (selector, @driver=driver.api) ->
     @selector ?= selector
     if not typeof @selector is 'string'
       throw new Error "Invalid selector given: #{@selector}"
 
-  # Returns a new widget that is scoped within the parent selector.
+# Returns a new widget that is scoped within the parent selector.
   find: (nestedSelector) -> new Widget "#{@selector} #{nestedSelector}"
 
-  # Convenient wrapper around text expectation
+# Convenient wrapper around text expectation
   hasText: (expected) -> @getText().should.eventually.become(expected)
 
-  # Wraps webdriver API methods into promises
-  _promisifyWebdriverApi: (method, callArgs) ->
-    new Promise (fulfill, reject) =>
-      # Add selector as first argument
+# Wraps webdriver API methods
+  _wrapWebdriverApi: (method, callArgs) ->
+    () =>
+# Add selector as first argument
       callArgs.unshift @selector
       # Add the handler function as last argument
       callArgs.push (error, result) =>
-        # Provide the result value for convenience!
+# Provide the result value for convenience!
         if error? then reject(error) else fulfill(result)
       # Invoke the webdriver.io API method with prepared args
       @driver[method].apply @driver, callArgs
 
-  # ========== GENERATE PROMISIFIED WIDGET API ============ #
+  # ========== GENERATE WRAPPED WIDGET API ============ #
 
   Widget.API = [
-    # Actions
+# Actions
     'addValue', 'clearElement', 'click', 'doubleClick', 'dragAndDrop',
     'leftClick', 'middleClick', 'moveToObject', 'rightClick', 'setValue'
     'submitForm',
-    # Property
+# Property
     'getAttribute', 'getCssProperty', 'getElementSize', 'getHTML',
     'getLocation', 'getLocationInView', 'getSource', 'getTagName',
     'getText', 'getTitle', 'getValue',
-    # State
+# State
     'isEnabled', 'isExisting', 'isSelected', 'isVisible',
-    # Utility
+# Utility
     'waitForChecked', 'waitForEnabled', 'waitForExist', 'waitForSelected',
     'waitForText', 'waitForValue', 'waitForVisible'
   ]
@@ -63,7 +64,7 @@ class Widget extends Base
   # The generated methods are running in the context of the widget!
   generateApiMethod = (method) -> return ->
     callArgs = Array.prototype.slice.call arguments
-    @_promisifyWebdriverApi method, callArgs
+    @_wrapWebdriverApi method, callArgs
 
   Widget.prototype[method] = generateApiMethod(method) for method in Widget.API
 
