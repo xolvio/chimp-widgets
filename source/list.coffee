@@ -6,30 +6,25 @@ class List extends Widget
   itemSelector: null
   _nestedItemsSelector: null
 
-  constructor: (selector, itemSelector, driver, widget, promise) ->
-    super selector, driver, promise
+  constructor: (selector, itemSelector, driver, widget) ->
+    super selector, driver
     @Widget = widget ? Widget
     @itemSelector ?= itemSelector
     @_nestedItemsSelector = "#{@selector} #{@itemSelector}"
-    @widgets = new @Promise (fulfill, reject) =>
-      @driver.elements @_nestedItemsSelector, (error, elements) =>
-        if error?
-          reject error
-        else
-          fulfill @_wrapAsWidgets(elements.value)
+    @widgets = @_wrapAsWidgets(@driver.elements @_nestedItemsSelector)
 
-  findWhere: (filter) -> @widgets.then (widgets) =>
-    @Promise.any widgets.map (widget) => filter(widget).then (result) =>
-      if result then @Promise.resolve(widget) else @Promise.reject()
+  findWhere: (filter) ->
+    for widget of @widgets
+      return widget if filter(widget)
 
-  findByText: (text) -> 
+  findByText: (text) ->
     @findWhere (widget) => widget.hasText(text).then -> widget
 
   map: (mapper) -> @widgets.then (widgets) => widgets.map mapper
 
   _wrapAsWidgets: (elements) =>
     return elements.map (element, index) =>
-      # Return widget with scoped index selector
+# Return widget with scoped index selector
       new @Widget "#{@_nestedItemsSelector}:nth-child(#{index+1})"
 
 module.exports = List
