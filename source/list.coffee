@@ -11,20 +11,20 @@ class List extends Widget
     @Widget = widget ? Widget
     @itemSelector ?= itemSelector
     @_nestedItemsSelector = "#{@selector} #{@itemSelector}"
-    @widgets = @_wrapAsWidgets(@driver.elements @_nestedItemsSelector)
+    @widgets = @_wrapAsWidgets(@driver.elements(@_nestedItemsSelector).value)
 
   findWhere: (filter) ->
     for widget of @widgets
       return widget if filter(widget)
 
   findByText: (text) ->
-    @findWhere (widget) => widget.hasText(text).then -> widget
+    @findWhere (widget) => widget if widget.hasText(text)
 
-  map: (mapper) -> @widgets.then (widgets) => widgets.map mapper
+  map: (mapper) -> @widgets.map mapper
 
   _wrapAsWidgets: (elements) =>
     return elements.map (element, index) =>
-# Return widget with scoped index selector
+      # Return widget with scoped index selector
       new @Widget "#{@_nestedItemsSelector}:nth-child(#{index+1})"
 
 module.exports = List
