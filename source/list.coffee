@@ -14,7 +14,7 @@ class List extends Widget
     @widgets = @_wrapAsWidgets(@driver.elements(@_nestedItemsSelector).value)
 
   findWhere: (filter) ->
-    for widget of @widgets
+    for widget in @widgets
       return widget if filter(widget)
 
   findByText: (text) ->
