@@ -31,14 +31,6 @@ class Widget extends Base
   # Convenient wrapper around text expectation
   hasText: (expected) -> @getText().should.eventually.become(expected)
 
-  # Wraps webdriver API methods
-  _wrapWebdriverApi: (method, callArgs) ->
-    () =>
-      # Add selector as first argument
-      callArgs.unshift @selector
-      # Invoke the webdriver.io API method with prepared args
-      @driver[method].apply @driver, callArgs
-
   # ========== GENERATE WRAPPED WIDGET API ============ #
 
   Widget.API = [
