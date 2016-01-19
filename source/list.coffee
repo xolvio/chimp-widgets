@@ -6,26 +6,21 @@ class List extends Widget
   itemSelector: null
   _nestedItemsSelector: null
 
-  constructor: (selector, itemSelector, driver, widget, promise) ->
-    super selector, driver, promise
+  constructor: (selector, itemSelector, driver, widget) ->
+    super selector, driver
     @Widget = widget ? Widget
     @itemSelector ?= itemSelector
     @_nestedItemsSelector = "#{@selector} #{@itemSelector}"
-    @widgets = new @Promise (fulfill, reject) =>
-      @driver.elements @_nestedItemsSelector, (error, elements) =>
-        if error?
-          reject error
-        else
-          fulfill @_wrapAsWidgets(elements.value)
+    @widgets = @_wrapAsWidgets(@driver.elements(@_nestedItemsSelector).value)
 
-  findWhere: (filter) -> @widgets.then (widgets) =>
-    @Promise.any widgets.map (widget) => filter(widget).then (result) =>
-      if result then @Promise.resolve(widget) else @Promise.reject()
+  findWhere: (filter) ->
+    for widget in @widgets
+      return widget if filter(widget)
 
-  findByText: (text) -> 
-    @findWhere (widget) => widget.hasText(text).then -> widget
+  findByText: (text) ->
+    @findWhere (widget) => widget if widget.hasText(text)
 
-  map: (mapper) -> @widgets.then (widgets) => widgets.map mapper
+  map: (mapper) -> @widgets.map mapper
 
   _wrapAsWidgets: (elements) =>
     return elements.map (element, index) =>
