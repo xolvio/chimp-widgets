@@ -106,7 +106,7 @@ use the complete webdriver.io API without any changes**. You just leave out
 the first param (*selector*) to all api calls because your *widgets*
 are taking care of that transparently. The second nice side effect
 is that the chimp-widgets API wraps the raw webdriver.io calls with
-Promises. That's why you can just return `new this.ProjectsPage().waitForVisible();` in your step definition and and the
+Promises. That's why you can just return `new this.ProjectsPage().waitForVisible();` in your step definition and the
 test runner handles the resolved or rejected promise.
 
 ## API
