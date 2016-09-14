@@ -9,7 +9,7 @@ class List extends Widget
   constructor: (selector, itemSelector, driver, widget) ->
     super selector, driver
     @Widget = widget ? Widget
-    @itemSelector ?= itemSelector
+    @itemSelector = itemSelector if itemSelector?
     @_nestedItemsSelector = "#{@selector} #{@itemSelector}"
     @widgets = @_wrapAsWidgets(@driver.elements(@_nestedItemsSelector).value)
 

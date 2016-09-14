@@ -21,7 +21,7 @@ class Widget extends Base
   selector: null
 
   constructor: (selector, @driver=driver.api) ->
-    @selector ?= selector
+    @selector = selector if selector?
     if not typeof @selector is 'string'
       throw new Error "Invalid selector given: #{@selector}"
 
